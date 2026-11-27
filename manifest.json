@@ -4,7 +4,7 @@
   "name": "My Workspaces",
   "version": "1.0.0",
   "author": "fbnmtz",
-  "description": "Workspace number indicators",
+  "description": "Per-monitor workspace indicators, 20 slots, occupied-only, layout cycling, optional keybinds",
   "kinds": [
     "bar-widget"
   ],
@@ -13,7 +13,7 @@
   },
   "barWidget": {
     "displayName": "My Workspaces",
-    "description": "Workspace number indicators",
+    "description": "Per-monitor workspace indicators, 20 slots, occupied-only, layout cycling, optional keybinds",
     "category": "Compositor",
     "allowMultiple": false
   },
