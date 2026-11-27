@@ -23,8 +23,9 @@ unoccupied hidden workspaces dimmed, "guest" workspaces shown last.
 - Only **occupied** workspaces (plus the active one, plus monitor "guests")
   are shown; empty hidden workspaces are omitted (stock always shows 1–5).
 - Own id `fbnmtz.workspaces`, own `moduleName`, own `ShellIpc` target.
-- Ships **`bindings.lua`**: optional Hyprland keybinds for the fixed two-monitor
-  layout (below). Not loaded automatically.
+- Ships **`bindings.lua`**: optional Hyprland keybinds for a fixed per-monitor
+  layout — two monitors, plus an optional third via `CTRL` (below). Not loaded
+  automatically.
 
 ## Requirements
 
@@ -40,7 +41,10 @@ unoccupied hidden workspaces dimmed, "guest" workspaces shown last.
   in `${XDG_STATE_HOME}/omarchy/workspace-layouts/`.
 - `bindings.lua` (optional) additionally needs Omarchy's Hyprland Lua API
   (`o.workspaces.focus`, `o.workspaces.move_window`, `o.rebind`, `hl.dsp`).
-- **Multi-monitor `bindings.lua` is MACHINE-SPECIFIC.** Defaults `DP-1` /
+- **`bindings.lua` keybinds use real monitor connector names**, auto-detected
+  with `hl.get_monitors()` (no `hyprctl` IPC, which would block reload),
+  overridable per monitor with `FWS_M01` / `FWS_M02` / `FWS_M03`. Monitor 1
+  always works; monitor 2 / 3 are optional; nothing hardcoded to `DP-1` /
   `HDMI-A-2`; check `hyprctl monitors`. The core widget does not need it.
 
 Self-contained inside the plugin folder: `manifest.json`, `Workspaces.qml`,
@@ -75,8 +79,11 @@ widget is replaced by this clone. Layout cycling's
 
 ## Optional keybinds (`bindings.lua`)
 
-Not loaded by Omarchy automatically. Only load it while the widget is enabled,
-in `~/.config/hypr/bindings.lua`:
+Not loaded by Omarchy automatically (option D; an automatic `toggles/hypr`
+autoload is being evaluated separately). Only load it while the widget is
+enabled, in `~/.config/hypr/bindings.lua`. `bindings.lua` itself also
+self-gates: it does nothing unless `"id": "fbnmtz.workspaces"` is in
+`~/.config/omarchy/shell.json`. `hyprctl reload` re-applies.
 
 ```lua
 local config_home = os.getenv("XDG_CONFIG_HOME") or (os.getenv("HOME") .. "/.config")
@@ -92,18 +99,39 @@ if fbnmtz_workspaces_active then
 end
 ```
 
-`bindings.lua` itself, for slots 1–20 on two monitors:
+`bindings.lua`, for slots 1–20 per monitor:
 
-- `SUPER + 1..0` then `SUPER + F1..F10` → focus workspace N on **HDMI-A-2**
-- `ALT + 1..0` then `ALT + F1..F10` → focus workspace N on **DP-1**
-- `SUPER + SHIFT + …` → move window to that workspace on that monitor
-- `ALT + SHIFT + …` → move window to that workspace on the other monitor
-- `SUPER + SHIFT + ALT + 1..0` → silent move on HDMI-A-2 (slots 1–10)
+Monitor 1 (`WS_MONITOR1`) is always registered and works with **just one
+monitor**. Monitors 2 and 3 are **optional** — same logic, only registered when
+present/detected:
 
-Monitor names: `local MON_DP` / `local MON_HDMI` at the top of `bindings.lua`,
-or env `FBNMTZ_MON_DP` / `FBNMTZ_MON_HDMI`. Keybind description strings are
-in Portuguese; edit freely. Then `hyprctl reload && hyprctl configerrors`.
-**The `dofile` path must match the renamed plugin directory.**
+- `ALT + 1..0` then `ALT + F1..F10` → focus workspace N on **monitor 1**
+- `ALT + SHIFT + …` → move window to that workspace on **monitor 1**
+- **if monitor 2 exists:** `SUPER + 1..0` / `SUPER + F1..F10` → focus workspace
+  N on **monitor 2**; `SUPER + SHIFT + …` → move; `SUPER + SHIFT + ALT + 1..0`
+  → silent move (slots 1–10)
+- **if monitor 3 exists:** `CTRL + 1..0` / `CTRL + F1..F10` → focus workspace
+  N on **monitor 3**; `CTRL + SHIFT + …` → move; `CTRL + SHIFT + ALT + 1..0`
+  → silent move (slots 1–10)
+
+(key for monitor 1 is `ALT`, monitor 2 `SUPER`, monitor 3 `CTRL`.)
+
+Custom:
+
+- `SUPER + TAB` → `hl.dsp.focus({ workspace = "prev" })`, "Previous workspace"
+  (`o.rebind`, replaces Omarchy's stock `SUPER + TAB` "Next workspace"; combine
+  with `binds.allow_workspace_cycles = true` if desired)
+
+Monitor selection, per monitor (no `hyprctl` IPC — it would block reload):
+
+1. environment override: `FWS_M01` / `FWS_M02` / `FWS_M03`
+2. auto-detect `hl.get_monitors()`, connectors sorted by name, slot 1 / 2 / 3
+3. **monitor 1** falls back to the 1st connected monitor and is always bound;
+   **monitor 2 / 3** bind only if that monitor exists/detected; nothing is
+   hardcoded to `DP-1` / `HDMI-A-2` anymore
+
+Keybind description strings are in Portuguese; edit freely. Then
+`hyprctl reload && hyprctl configerrors`.
 
 ## Remove
 

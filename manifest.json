@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "fbnmtz.workspaces",
-  "name": "My Workspaces",
+  "name": "20Workspaces",
   "version": "1.0.0",
   "author": "fbnmtz",
   "description": "Per-monitor workspace indicators, 20 slots, occupied-only, layout cycling, optional keybinds",
@@ -12,7 +12,7 @@
     "barWidget": "Workspaces.qml"
   },
   "barWidget": {
-    "displayName": "My Workspaces",
+    "displayName": "20Workspaces",
     "description": "Per-monitor workspace indicators, 20 slots, occupied-only, layout cycling, optional keybinds",
     "category": "Compositor",
     "allowMultiple": false
